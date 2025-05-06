@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/graduation-cap.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Asistente de estudio con IA Gemini" />
+    <meta name="theme-color" content="#6366f1" />
+    <title>Study Buddy</title>
+    
+    <!-- Añadir metatag para evitar comportamientos extraños de pantalla táctil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- Prevenir que el texto se seleccione al hacer doble clic -->
+    <style>
+      body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        overflow-x: hidden;
+      }
+      
+      /* Permitir selección en campos donde es necesario */
+      input, textarea, [contenteditable="true"] {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+      }
+      
+      /* Asegurar que el cursor no cambie inesperadamente */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

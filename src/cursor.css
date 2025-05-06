@@ -1,0 +1,42 @@
+/* Estilos para cuando el cursor personalizado está activado */
+body.custom-cursor-enabled * {
+  cursor: none !important;
+}
+
+/* Resaltar elementos interactivos cuando el cursor personalizado está activo */
+body.custom-cursor-enabled button:hover,
+body.custom-cursor-enabled [role="button"]:hover,
+body.custom-cursor-enabled a:hover,
+body.custom-cursor-enabled .cursor-pointer:hover {
+  outline: 2px solid rgba(99, 102, 241, 0.3);
+  outline-offset: 2px;
+}
+
+/* Eliminar cualquier comportamiento extraño del cursor nativo */
+body.custom-cursor-enabled input,
+body.custom-cursor-enabled textarea,
+body.custom-cursor-enabled select,
+body.custom-cursor-enabled button {
+  cursor: none !important;
+}
+
+/* Estabilizar elementos interactivos para evitar saltos */
+button, [role="button"], a, input, textarea, select, .cursor-pointer {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Evitar cualquier animación o transformación agresiva que pueda causar problemas con el cursor */
+* {
+  transform-style: flat;
+  backface-visibility: hidden;
+}
+
+/* Reducir las transiciones que puedan afectar al rendimiento del cursor */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}

@@ -38,7 +38,7 @@ const StudyAssistant = () => {
       formData.append('questionType', 'mixed');
       formData.append('questionCount', 5); // Fijo a 5 preguntas
 
-      const response = await axios.post('http://localhost:5000/api/chat/quiz', formData, {
+      const response = await axios.post('https://triviamantica-backend.vercel.app/api/chat/quiz', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -73,7 +73,7 @@ const StudyAssistant = () => {
       formData.append('questionType', 'mixed');
       formData.append('questionCount', 5); // Fijo a 5 preguntas
 
-      const response = await axios.post('http://localhost:5000/api/chat/quiz', formData, {
+      const response = await axios.post('https://triviamantica-backend.vercel.app/api/chat/quiz', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -126,7 +126,7 @@ const StudyAssistant = () => {
       
       while (retries < maxRetries) {
         try {
-          response = await axios.post('http://localhost:5000/api/chat/validate', validationData);
+          response = await axios.post('https://triviamantica-backend.vercel.app/api/chat/validate', validationData);
           break; // Si la llamada es exitosa, salir del bucle
         } catch (error) {
           retries++;

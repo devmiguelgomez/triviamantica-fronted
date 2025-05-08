@@ -10,7 +10,7 @@ const ApiStatusMonitor = () => {
   const checkApiStatus = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/chat/api-status');
+      const response = await axios.get('https://triviamantica-backend.vercel.app/api/chat/api-status');
       setApiStatus(response.data);
       setError(null);
     } catch (err) {

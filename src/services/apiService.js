@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuración base de axios
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://triviamantica-backend.vercel.app/api',
   timeout: 60000, // 60 segundos para permitir procesamiento de documentos
   headers: {
     'Content-Type': 'application/json'

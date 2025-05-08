@@ -12,9 +12,10 @@ Este es el frontend de la aplicación Study Buddy, desarrollado con React, Vite 
 
 ## Características principales
 
-- **Asistente de Estudio AI**: Genera cuestionarios personalizados con IA
-- **Múltiples formatos de pregunta**: Opción múltiple, verdadero/falso y preguntas abiertas
-- **Soporte para documentos**: Carga PDFs, documentos Word e imágenes como base para los cuestionarios
+- **Trivia de 5 temas**: Historia, Cultura, Deporte, Ciencia y Geografía
+- **Preguntas generadas por IA**: Cada tema contiene 5 preguntas generadas dinámicamente
+- **Múltiples formatos de pregunta**: Combinación de preguntas de opción múltiple y verdadero/falso
+- **Evaluación instantánea**: Feedback inmediato sobre cada respuesta
 - **Interfaz adaptable**: Diseño responsive que funciona en dispositivos móviles y de escritorio
 - **Accesibilidad mejorada**: Soporte para navegación con teclado, alto contraste y tamaños de cursor personalizables
 - **Fuentes locales**: Implementación de fuentes locales para evitar problemas de tracking prevention

@@ -15,7 +15,7 @@ const SessionHistory = ({ onSelectSession, onClose }) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axios.get('https://backend-gemini-one.vercel.app/api/chat/sessions');
+      const response = await axios.get('http://localhost:5000/api/chat/sessions');
       setSessions(response.data);
     } catch (error) {
       console.error('Error al cargar las sesiones:', error);
@@ -33,7 +33,7 @@ const SessionHistory = ({ onSelectSession, onClose }) => {
     }
     
     try {
-      await axios.delete(`https://backend-gemini-one.vercel.app/api/chat/sessions/${sessionId}`);
+      await axios.delete(`http://localhost:5000/api/chat/sessions/${sessionId}`);
       setSessions(sessions.filter(session => session._id !== sessionId));
     } catch (error) {
       console.error('Error al eliminar la sesión:', error);

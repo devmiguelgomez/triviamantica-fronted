@@ -27,7 +27,7 @@ const ChatPrompt = () => {
     
     try {
       setIsLoadingHistory(true);
-      const res = await axios.get(`https://backend-gemini-one.vercel.app/api/chat/history?sessionId=${id}`);
+      const res = await axios.get(`http://localhost:5000/api/chat/history?sessionId=${id}`);
       
       if (res.data && res.data.length > 0) {
         const formattedConversations = res.data.flatMap(conv => [
@@ -71,7 +71,7 @@ const ChatPrompt = () => {
       setPrompt('') // Limpiar el input inmediatamente para mejor UX
       
       // Incluir el sessionId si existe
-      const res = await axios.post('https://backend-gemini-one.vercel.app/api/chat', { 
+      const res = await axios.post('http://localhost:5000/api/chat', { 
         prompt,
         sessionId 
       })

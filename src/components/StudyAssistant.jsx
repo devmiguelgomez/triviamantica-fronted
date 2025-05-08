@@ -1,53 +1,32 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { FaBook, FaUpload, FaSpinner, FaListOl, FaQuestionCircle } from 'react-icons/fa';
+import { FaBook, FaSpinner, FaHistory, FaFlask, FaFutbol, FaGlobe, FaTheaterMasks, FaRandom, FaStar } from 'react-icons/fa';
 import React from 'react';
 import QuizQuestion from './QuizQuestion';
 
 const StudyAssistant = () => {
-  const [step, setStep] = useState('initial'); // initial, config, loading, quiz, results
-  const [topic, setTopic] = useState('');
-  const [questionType, setQuestionType] = useState('multiple-choice');
-  const [questionCount, setQuestionCount] = useState(5);
-  const [document, setDocument] = useState(null);
-  const [documentPreview, setDocumentPreview] = useState('');
+  const [step, setStep] = useState('initial'); // initial, loading, quiz, results
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [questionType, setQuestionType] = useState('mixed');
   const [isLoading, setIsLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [sessionId, setSessionId] = useState('');
   const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
 
-  // Manejar la selección de archivo
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDocument(file);
-
-      // Crear vista previa para imágenes
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => setDocumentPreview(e.target.result);
-        reader.readAsDataURL(file);
-      } else {
-        setDocumentPreview('');
-      }
-    }
-  };
-
-  // Iniciar la configuración del cuestionario
-  const handleStart = () => {
-    setStep('config');
-  };
+  // Temas disponibles para la trivia
+  const topics = [
+    { id: 'historia', name: 'Historia', icon: <FaHistory /> },
+    { id: 'cultura', name: 'Cultura', icon: <FaTheaterMasks /> },
+    { id: 'deporte', name: 'Deporte', icon: <FaFutbol /> },
+    { id: 'ciencia', name: 'Ciencia', icon: <FaFlask /> },
+    { id: 'geografia', name: 'Geografía', icon: <FaGlobe /> },
+  ];
 
   // Generar el cuestionario (conectar con el backend)
-  const handleGenerateQuiz = async () => {
-    if (!topic && !document) {
-      setError('Por favor ingresa un tema o sube un documento');
-      return;
-    }
-
+  const handleGenerateQuiz = async (topic) => {
+    setSelectedTopic(topic);
     setError('');
     setIsLoading(true);
     setStep('loading');
@@ -55,14 +34,11 @@ const StudyAssistant = () => {
     try {
       const formData = new FormData();
       formData.append('topic', topic);
-      formData.append('questionType', questionType);
-      formData.append('questionCount', questionCount);
+      // Asegurarnos de usar un tipo válido para el backend
+      formData.append('questionType', 'mixed');
+      formData.append('questionCount', 5); // Fijo a 5 preguntas
 
-      if (document) {
-        formData.append('document', document);
-      }
-
-      const response = await axios.post('https://backend-gemini-one.vercel.app/api/chat/quiz', formData, {
+      const response = await axios.post('http://localhost:5000/api/chat/quiz', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -75,9 +51,45 @@ const StudyAssistant = () => {
       console.error('Error al generar el cuestionario:', error);
       setError(
         error.response?.data?.error ||
+        error.response?.data?.details ||
         'Error al conectar con el servidor. Por favor verifica que el backend esté funcionando.'
       );
-      setStep('config');
+      setStep('initial');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Generar una trivia aleatoria con preguntas de todos los temas
+  const handleGenerateRandomQuiz = async () => {
+    setSelectedTopic('aleatorio');
+    setError('');
+    setIsLoading(true);
+    setStep('loading');
+
+    try {
+      const formData = new FormData();
+      formData.append('topic', 'trivia aleatoria con una pregunta de cada tema: historia, cultura, deporte, ciencia y geografía');
+      formData.append('questionType', 'mixed');
+      formData.append('questionCount', 5); // Fijo a 5 preguntas
+
+      const response = await axios.post('http://localhost:5000/api/chat/quiz', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setSessionId(response.data.sessionId);
+      setQuiz(response.data.quiz);
+      setStep('quiz');
+    } catch (error) {
+      console.error('Error al generar la trivia aleatoria:', error);
+      setError(
+        error.response?.data?.error ||
+        error.response?.data?.details ||
+        'Error al conectar con el servidor. Por favor verifica que el backend esté funcionando.'
+      );
+      setStep('initial');
     } finally {
       setIsLoading(false);
     }
@@ -97,13 +109,13 @@ const StudyAssistant = () => {
         questionIndex: currentQuestionIndex,
         userAnswer: answer,
         question: currentQuestion,
-        questionType // Enviamos el tipo de pregunta para validación local
+        questionType: currentQuestion.type || questionType // Usar el tipo específico de la pregunta
       };
       
       // Añadir información de respuesta correcta si está disponible
-      if (questionType === 'multiple-choice') {
+      if (currentQuestion.type === 'multiple-choice') {
         validationData.correctAnswer = currentQuestion.correctAnswer;
-      } else if (questionType === 'true-false') {
+      } else if (currentQuestion.type === 'true-false') {
         validationData.correctAnswer = currentQuestion.isTrue ? 'true' : 'false';
       }
       
@@ -114,7 +126,7 @@ const StudyAssistant = () => {
       
       while (retries < maxRetries) {
         try {
-          response = await axios.post('https://backend-gemini-one.vercel.app/api/chat/validate', validationData);
+          response = await axios.post('http://localhost:5000/api/chat/validate', validationData);
           break; // Si la llamada es exitosa, salir del bucle
         } catch (error) {
           retries++;
@@ -160,9 +172,10 @@ const StudyAssistant = () => {
       
       // Crear una respuesta local para continuar con el cuestionario
       const currentQuestion = quiz.questions[currentQuestionIndex];
+      const questionSpecificType = currentQuestion.type || questionType;
       let localEvaluation;
       
-      if (questionType === 'multiple-choice') {
+      if (questionSpecificType === 'multiple-choice') {
         const isCorrect = answer === currentQuestion.correctAnswer;
         localEvaluation = {
           isCorrect,
@@ -170,7 +183,7 @@ const StudyAssistant = () => {
             ? "¡Correcto! 👏 (Validación local debido a un problema de conexión)" 
             : `Incorrecto. 😕 (Validación local debido a un problema de conexión)`
         };
-      } else if (questionType === 'true-false') {
+      } else if (questionSpecificType === 'true-false') {
         const normalizedUserAnswer = answer.toLowerCase() === 'true';
         const normalizedCorrectAnswer = currentQuestion.isTrue === true || currentQuestion.isTrue === 'true';
         const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
@@ -214,11 +227,8 @@ const StudyAssistant = () => {
 
   // Reiniciar todo para un nuevo cuestionario
   const handleNewQuiz = () => {
-    setTopic('');
-    setQuestionType('multiple-choice');
-    setQuestionCount(5);
-    setDocument(null);
-    setDocumentPreview('');
+    setSelectedTopic('');
+    setQuestionType('mixed');
     setQuiz(null);
     setCurrentQuestionIndex(0);
     setAnswers([]);
@@ -235,149 +245,79 @@ const StudyAssistant = () => {
     return Math.round((correctAnswers / answers.length) * 100);
   };
 
-  // Renderizar paso inicial
+  // Renderizar paso inicial con selección de temas
   const renderInitialStep = () => (
-    <div className="flex flex-col items-center justify-center space-y-8 py-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-4">
-          <FaBook className="inline-block mr-2" /> Asistente de Estudio
-        </h2>
-        <p className="text-indigo-600 max-w-md">
-          Crea cuestionarios personalizados para estudiar cualquier tema.
-          Sube un documento o simplemente escribe el tema que deseas estudiar.
+    <div className="flex flex-col items-center justify-center space-y-6 py-6">
+      <div className="bg-[#262454] text-white rounded-full px-6 py-2 inline-flex items-center mb-4">
+        <FaBook className="mr-2" /> 
+        <span className="font-medium text-[#9e61ff]">Trivia de Conocimientos</span>
+      </div>
+
+      <div className="text-center mb-4">
+        <p className="text-gray-600">
+          Elige un tema para poner a prueba tus conocimientos con 5 preguntas interactivas.
         </p>
       </div>
 
-      <button
-        onClick={handleStart}
-        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center"
-        aria-label="Empezar a estudiar"
-        data-cursor-pointer
-      >
-        <FaQuestionCircle className="mr-2" /> Empezar a Estudiar
-      </button>
-    </div>
-  );
-
-  // Renderizar paso de configuración
-  const renderConfigStep = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-xl font-bold text-indigo-700 mb-6 flex items-center">
-        <FaBook className="mr-2" /> Configurar Cuestionario
-      </h2>
-
       {error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg w-full max-w-md border border-red-200">
           {error}
         </div>
       )}
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-indigo-700 font-medium mb-2">
-            Tema de estudio
-          </label>
-          <input
-            type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Ej: Historia de América, Matemáticas, Filosofía..."
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <div>
-          <label className="block text-indigo-700 font-medium mb-2">
-            Documento (opcional)
-          </label>
-          <div className="relative">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept=".pdf,.doc,.docx"
-            />
-            <button
-              onClick={() => fileInputRef.current.click()}
-              className="w-full p-3 border border-dashed border-indigo-400 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center"
-              data-cursor-pointer
-            >
-              <FaUpload className="mr-2" />
-              {document ? document.name : "Seleccionar archivo (PDF o Word)"}
-            </button>
+      {/* Opción especial para trivia aleatoria multitema */}
+      <div className="w-full max-w-2xl mb-2">
+        <button
+          onClick={handleGenerateRandomQuiz}
+          className="bg-[#262454] hover:bg-[#1e1a45] text-white border-2 border-[#9e61ff] rounded-xl p-4 text-center shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-3 w-full"
+          data-cursor-pointer
+        >
+          <div className="bg-[#9e61ff] p-3 rounded-full text-white">
+            <FaStar />
           </div>
-
-          {documentPreview && (
-            <div className="mt-2">
-              <img
-                src={documentPreview}
-                alt="Vista previa"
-                className="max-h-32 rounded-lg border border-indigo-200"
-              />
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-indigo-700 font-medium mb-2">
-            Tipo de preguntas
-          </label>
-          <select
-            value={questionType}
-            onChange={(e) => setQuestionType(e.target.value)}
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="multiple-choice">Opción múltiple (a, b, c, d)</option>
-            <option value="true-false">Verdadero o Falso</option>
-            <option value="open-ended">Preguntas abiertas</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-indigo-700 font-medium mb-2">
-            Número de preguntas
-          </label>
-          <select
-            value={questionCount}
-            onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-            className="w-full p-3 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            {[3, 5, 7, 10].map(num => (
-              <option key={num} value={num}>{num} preguntas</option>
-            ))}
-          </select>
-        </div>
+          <div>
+            <h3 className="font-medium text-lg text-[#9e61ff]">Trivia Mixta</h3>
+            <p className="text-sm text-gray-300">Una pregunta de cada tema</p>
+          </div>
+        </button>
       </div>
 
-      <div className="mt-8 flex space-x-3">
-        <button
-          onClick={() => setStep('initial')}
-          className="px-4 py-2 border border-indigo-300 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
-          data-cursor-pointer
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={handleGenerateQuiz}
-          className="flex-grow bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
-          data-cursor-pointer
-        >
-          <FaListOl className="mr-2" /> Generar Cuestionario
-        </button>
+      <div className="w-full max-w-2xl">
+        <h3 className="text-gray-700 font-medium mb-3">O elige un tema específico:</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {topics.map((topic) => (
+            <button
+              key={topic.id}
+              onClick={() => handleGenerateQuiz(topic.id)}
+              className="bg-white hover:bg-[#f0e8ff] border border-gray-200 hover:border-[#d3c0ff] rounded-xl p-4 text-left shadow-sm hover:shadow-md transition-all flex items-center space-x-4"
+              data-cursor-pointer
+            >
+              <div className="bg-[#f0e8ff] p-3 rounded-full text-[#7e40f2]">
+                {topic.icon}
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-800">{topic.name}</h3>
+                <p className="text-sm text-gray-500">5 preguntas de trivia</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 
   // Renderizar paso de carga
   const renderLoadingStep = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center min-h-[400px]">
+    <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center justify-center min-h-[400px]">
       <div className="mb-6">
-        <FaSpinner className="animate-spin text-indigo-600 text-4xl" />
+        <div className="w-16 h-16 border-t-4 border-b-4 border-[#9e61ff] rounded-full animate-spin"></div>
       </div>
-      <h3 className="text-xl font-bold text-indigo-700 mb-2">Generando tu cuestionario</h3>
-      <p className="text-indigo-600 text-center max-w-md">
-        Estoy analizando el tema y creando preguntas personalizadas para ti.
+      <h3 className="text-xl font-bold text-gray-800 mb-3">
+        Preparando tu trivia 
+        {selectedTopic === 'aleatorio' ? ' Mixta' : ` de ${selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1)}`}
+      </h3>
+      <p className="text-gray-600 text-center max-w-md">
+        Estamos creando preguntas desafiantes para poner a prueba tus conocimientos.
         Este proceso puede tomar unos momentos...
       </p>
     </div>
@@ -388,11 +328,11 @@ const StudyAssistant = () => {
     if (!quiz || !quiz.questions || quiz.questions.length === 0) {
       return (
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-red-600 font-bold">Error al generar el cuestionario</h3>
+          <h3 className="text-red-600 font-bold">Error al generar la trivia</h3>
           <p className="mt-2">No se pudieron generar preguntas. Por favor intenta con otro tema.</p>
           <button
             onClick={handleNewQuiz}
-            className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg"
+            className="mt-4 bg-[#9e61ff] text-white px-4 py-2 rounded-lg"
           >
             Volver a intentar
           </button>
@@ -403,23 +343,25 @@ const StudyAssistant = () => {
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const currentAnswer = answers[currentQuestionIndex];
     const isAnswered = currentAnswer !== undefined;
+    
+    // Determinar el tipo específico de la pregunta actual
+    const currentQuestionType = currentQuestion.type || questionType;
 
     return (
-      <div className="bg-white rounded-xl shadow-lg">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-t-xl text-white flex items-center justify-between">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-[#262454] p-4 text-white flex items-center justify-between">
           <h3 className="font-bold">
             Pregunta {currentQuestionIndex + 1} de {quiz.questions.length}
           </h3>
-          <span className="bg-white text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-            {questionType === 'multiple-choice' ? 'Opción Múltiple' :
-             questionType === 'true-false' ? 'Verdadero/Falso' : 'Pregunta Abierta'}
+          <span className="bg-white text-[#262454] px-3 py-1 rounded-full text-sm font-medium">
+            {selectedTopic === 'aleatorio' ? 'Trivia Mixta' : `Trivia de ${selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1)}`}
           </span>
         </div>
 
         <div className="p-6">
           <QuizQuestion
             question={currentQuestion}
-            questionType={questionType}
+            questionType={currentQuestionType}
             onAnswer={handleAnswer}
             isAnswered={isAnswered}
             userAnswer={currentAnswer?.userAnswer}
@@ -428,27 +370,34 @@ const StudyAssistant = () => {
             isLoading={isLoading}
           />
 
-          <div className="mt-6 flex justify-between items-center">
-            <div className="text-sm text-indigo-600">
+          <div className="mt-8 flex justify-between items-center">
+            <div className="text-sm text-gray-600">
               {isAnswered ?
                 `${currentQuestionIndex + 1 === quiz.questions.length ?
                   "Última pregunta" :
                   "Siguiente pregunta en breve..."}`
                 : "Responde a la pregunta para continuar"}
             </div>
-            <div className="flex items-center space-x-1">
-              {[...Array(quiz.questions.length)].map((_, i) => (
-                <span
-                  key={i}
-                  className={`w-3 h-3 rounded-full ${
-                    i === currentQuestionIndex ?
-                      'bg-indigo-600' :
-                      answers[i] ?
-                        (answers[i].isCorrect ? 'bg-green-500' : 'bg-red-500') :
-                        'bg-indigo-200'
-                  }`}
-                />
-              ))}
+            <div className="flex items-center space-x-2">
+              {[...Array(quiz.questions.length)].map((_, i) => {
+                const answeredCorrectly = answers[i]?.isCorrect;
+                const answeredIncorrectly = answers[i] !== undefined && !answers[i]?.isCorrect;
+                
+                return (
+                  <span
+                    key={i}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      i === currentQuestionIndex 
+                        ? 'w-5 bg-[#9e61ff] ring-2 ring-[#d3c0ff]' 
+                        : answeredCorrectly 
+                          ? 'bg-green-500' 
+                          : answeredIncorrectly 
+                            ? 'bg-red-500' 
+                            : 'bg-gray-300'
+                    }`}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
@@ -459,11 +408,13 @@ const StudyAssistant = () => {
   // Renderizar resultados
   const renderResultsStep = () => {
     const score = calculateScore();
-
+    
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-bold text-center mb-6">
-          Resultados del Cuestionario
+          {selectedTopic === 'aleatorio' 
+            ? 'Resultados de la Trivia Mixta' 
+            : `Resultados de la Trivia de ${selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1)}`}
         </h2>
 
         <div className="flex justify-center mb-8">
@@ -479,6 +430,7 @@ const StudyAssistant = () => {
         <div className="space-y-4 mb-8">
           {quiz.questions.map((question, index) => {
             const answer = answers[index];
+            const questionType = question.type || 'multiple-choice';
             
             let correctAnswerText = '';
             if (!answer?.isCorrect && questionType === 'multiple-choice') {
@@ -499,8 +451,9 @@ const StudyAssistant = () => {
                 <div className="flex items-start">
                   <div className="mr-3 mt-1">
                     {answer?.isCorrect ? 
-                      <span className="text-green-500">✓</span> : 
-                      <span className="text-red-500">✗</span>}
+                      <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center">✓</div> : 
+                      <div className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center">✗</div>
+                    }
                   </div>
                   <div>
                     <h4 className="font-medium">
@@ -521,7 +474,7 @@ const StudyAssistant = () => {
                     )}
                     
                     <div className="mt-2 text-sm border-t border-gray-200 pt-2">
-                      {questionType === 'open-ended' ? answer?.feedback : question.explanation}
+                      {question.explanation}
                     </div>
                   </div>
                 </div>
@@ -533,9 +486,9 @@ const StudyAssistant = () => {
         <div className="flex justify-center">
           <button
             onClick={handleNewQuiz}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-md"
           >
-            Crear Nuevo Cuestionario
+            Probar Otro Tema
           </button>
         </div>
       </div>
@@ -547,8 +500,6 @@ const StudyAssistant = () => {
     switch(step) {
       case 'initial':
         return renderInitialStep();
-      case 'config':
-        return renderConfigStep();
       case 'loading':
         return renderLoadingStep();
       case 'quiz':

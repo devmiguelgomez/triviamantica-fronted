@@ -8,7 +8,7 @@ const Header = () => {
         <div className="flex items-center space-x-3">
           <FaGraduationCap className="text-3xl text-white" />
           <h1 className="text-2xl font-bold text-white">
-            Study Buddy
+            Triviamania
           </h1>
         </div>
         <div className="text-sm text-indigo-100 mt-1">

@@ -27,13 +27,13 @@ const EnableCursor = ({ onToggle }) => {
     <div className="fixed bottom-4 left-4 z-50">
       <button
         onClick={handleToggle}
-        className="flex items-center bg-white border border-indigo-200 px-3 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
+        className="flex items-center bg-white border border-gray-300 px-3 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
         title={isEnabled ? "Desactivar cursor personalizado" : "Activar cursor personalizado"}
       >
-        <FaMousePointer className="text-indigo-600 mr-2" />
-        <span className="text-indigo-700 font-medium mr-1">Cursor:</span>
+        <FaMousePointer className="text-gray-700 mr-2" />
+        <span className="text-gray-800 font-medium mr-1">Cursor:</span>
         {isEnabled ? (
-          <FaToggleOn className="text-2xl text-indigo-600" />
+          <FaToggleOn className="text-2xl text-gray-700" />
         ) : (
           <FaToggleOff className="text-2xl text-gray-400" />
         )}

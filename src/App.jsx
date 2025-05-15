@@ -159,7 +159,7 @@ function App() {
   useEffect(() => {
     const verificarBackend = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/test', { timeout: 3000 });
+        const response = await axios.get('https://triviabackend.vercel.app/api/test', { timeout: 3000 });
         console.log('Conexión al backend establecida:', response.data);
         setBackendStatus('conectado');
       } catch (err) {

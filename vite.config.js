@@ -6,24 +6,21 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
-    // Configuración para mejorar la compatibilidad
+    // Configuración simplificada para mayor compatibilidad
     target: 'es2015',
-    sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-      },
+    commonjsOptions: {
+      transformMixedEsModules: true
     },
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-bootstrap', 'bootstrap', 'axios']
   },
   server: {
-    port: 5173,
-    strictPort: false,
-  },
-  // Mejorar manejo de archivos estáticos
-  publicDir: 'public',
-  // Configuración para Vercel
-  ssr: {
-    noExternal: ['react-bootstrap']
+    port: 5173
   }
 })

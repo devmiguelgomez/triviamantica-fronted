@@ -1,7 +1,8 @@
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
 
-const API_URL = 'https://triviabackend.vercel.app/api'; // URL del backend
+// Usa la variable de entorno si está disponible, o la URL de producción por defecto
+const API_URL = import.meta.env.VITE_API_URL || 'https://triviabackend.vercel.app/api';
 
 const TemaButton = ({ tema, setTemaSeleccionado, setPreguntas, setMostrarPreguntas }) => {
   const handleClick = () => {

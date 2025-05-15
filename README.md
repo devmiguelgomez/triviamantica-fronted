@@ -1,134 +1,145 @@
-﻿# Triviamantica - Frontend
+# Trivia Mántica - Frontend
 
-Este es el frontend de la aplicación Triviamantica, un juego de preguntas y respuestas desarrollado con React, Vite y Tailwind CSS. Proporciona una interfaz de usuario intuitiva para poner a prueba tus conocimientos en diferentes categorías.
+Aplicación interactiva de preguntas y respuestas que utiliza IA para generar trivias dinámicas sobre diferentes temas.
 
-## Tecnologías utilizadas
+![Trivia Mántica](https://via.placeholder.com/800x400?text=Trivia+M%C3%A1ntica)
 
-- **React 18**: Biblioteca de JavaScript para construir interfaces de usuario
-- **Vite 4**: Herramienta de construcción rápida que proporciona un entorno de desarrollo más eficiente
-- **Tailwind CSS 3**: Framework de CSS utilitario para diseño responsive
-- **Axios 1.6**: Cliente HTTP para realizar peticiones a la API
-- **React Icons 4**: Biblioteca para incorporar iconos populares en la aplicación React
+## ✨ Características principales
 
-## Características principales
+- Interfaz de usuario moderna e intuitiva desarrollada con React y Bootstrap
+- 6 categorías de preguntas: Cultura, Videojuegos, Historia, Deporte, Geografía y Trivia Mixta
+- Generación dinámica de preguntas utilizando IA (Gemini)
+- Preguntas de opción múltiple y de tipo verdadero/falso
+- Retroalimentación visual inmediata para respuestas correctas e incorrectas
+- Modo "Trivia Mixta" con preguntas de todas las categorías
+- Sistema de puntuación y resumen final
+- Funciona de forma degradada incluso sin conexión al backend
 
-- **Trivia multitemática**: Preguntas sobre Historia, Ciencia, Arte, Deportes y Geografía
-- **Múltiples formatos de pregunta**: Combinación de preguntas de opción múltiple y verdadero/falso
-- **Evaluación instantánea**: Feedback inmediato sobre cada respuesta
-- **Interfaz adaptable**: Diseño responsive que funciona en dispositivos móviles y de escritorio
-- **Sistema de puntuación**: Seguimiento de aciertos y fallos para medir tu progreso
-- **Fuentes locales**: Implementación de fuentes locales para mejorar el rendimiento
+## 🚀 Instalación y ejecución
 
-## Estructura del proyecto
+1. Clonar el repositorio
+2. Instalar dependencias:
 
-```
-triviamantica-fronted/
-├── dist/                      # Archivos compilados para producción
-├── node_modules/              # Dependencias instaladas
-├── public/                    # Archivos estáticos públicos
-│   ├── fonts/                 # Fuentes locales
-│   └── graduation-cap.svg     # Ícono de la aplicación
-├── src/
-│   ├── components/            # Componentes React
-│   │   ├── AccessibilityControls.jsx  # Controles de accesibilidad
-│   │   ├── AccessibilityCursor.jsx    # Cursor personalizado para accesibilidad
-│   │   ├── ApiStatusMonitor.jsx       # Monitor de estado de la API
-│   │   ├── ChatPrompt.jsx             # Componente para interacción con el chat
-│   │   ├── EnableCursor.jsx           # Control de cursor personalizado
-│   │   ├── Header.jsx                 # Cabecera de la aplicación
-│   │   ├── QuizQuestion.jsx           # Componente para mostrar preguntas de la trivia
-│   │   ├── SessionHistory.jsx         # Historial de sesiones anteriores
-│   │   └── StudyAssistant.jsx         # Componente principal de la trivia
-│   ├── services/              # Servicios para comunicación con el backend
-│   │   └── apiService.js      # Servicios de API para comunicación con el backend
-│   ├── utils/                 # Utilidades y funciones auxiliares
-│   │   ├── createFontsDirjs   # Utilidad para gestionar fuentes
-│   │   └── cursorUtils.js     # Utilidades para manejo del cursor
-│   ├── accessibility.css      # Estilos para funcionalidades de accesibilidad
-│   ├── App.css                # Estilos específicos de la aplicación
-│   ├── App.jsx                # Componente principal
-│   ├── cursor.css             # Estilos para el cursor personalizado
-│   ├── fonts.css              # Configuración de fuentes
-│   ├── index.css              # Estilos globales incluyendo Tailwind
-│   └── main.jsx               # Punto de entrada de React
-├── check-deps.js              # Script para verificar dependencias
-├── index.html                 # Plantilla HTML principal
-├── package-lock.json          # Versiones exactas de dependencias
-├── package.json               # Dependencias y scripts
-├── postcss.config.js          # Configuración de PostCSS
-├── README.md                  # Documentación del proyecto
-├── reset.js                   # Script para restablecer configuraciones
-├── tailwind.config.js         # Configuración de Tailwind CSS
-├── vercel.json                # Configuración para despliegue en Vercel
-└── vite.config.js             # Configuración de Vite
+```bash
+npm install
 ```
 
-## Requisitos previos
+3. Iniciar el servidor de desarrollo:
 
-- Node.js (v14 o superior)
-- npm o yarn
-
-## Configuración
-
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/devmiguelgomez/triviamantica-fronted.git
-   cd triviamantica-fronted
-   ```
-
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
-
-## Ejecución
-
-### Modo desarrollo:
 ```bash
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:5173`.
+4. Abrir [http://localhost:5173](http://localhost:5173) en el navegador
 
-### Construir para producción:
+## 📦 Construcción para producción
+
 ```bash
 npm run build
 ```
 
-### Previsualizar la versión de producción:
-```bash
-npm run preview
+Los archivos generados estarán en la carpeta `dist/`.
+
+## 📂 Estructura del proyecto
+
+```
+triviamantica-frontend/
+├── public/            # Archivos estáticos
+├── src/               # Código fuente
+│   ├── components/    # Componentes React
+│   │   ├── Preguntas.jsx     # Componente para mostrar preguntas
+│   │   └── TemaButton.jsx    # Botón para seleccionar tema
+│   ├── App.jsx        # Componente principal
+│   ├── App.css        # Estilos CSS
+│   └── main.jsx       # Punto de entrada
+├── index.html         # HTML principal
+├── package.json       # Dependencias y scripts
+└── README.md          # Este archivo
 ```
 
-## Personalización
+## 🧩 Componentes principales
 
-### Colores y tema
+### `App.jsx`
 
-Puedes modificar los colores y el tema editando el archivo `tailwind.config.js`. El proyecto utiliza una combinación de colores que puedes ajustar según tus preferencias.
+Componente principal que gestiona:
+- Estado global de la aplicación
+- Selección de temas
+- Comunicación con el backend
+- Manejo de errores y estados de carga
 
-## Conexión con el backend
+### `TemaButton.jsx`
 
-El frontend está configurado para conectarse al backend de Triviamantica:
+Maneja:
+- Solicitudes al backend para obtener preguntas
+- Caché de preguntas para mejorar el rendimiento
+- Lógica para generar preguntas mixtas
+- Fallbacks para casos de error o sin conexión
 
-```javascript
-const res = await axios.post('https://triviamantica-backend.vercel.app/api/questions', { category })
-```
+### `Preguntas.jsx`
 
-Para desarrollo local, modifica la URL en los archivos de servicios o utiliza el proxy configurado en `vite.config.js`.
+Se encarga de:
+- Mostrar las preguntas y opciones de respuesta
+- Verificar y mostrar resultados de respuestas
+- Controlar el flujo del juego
+- Mostrar puntuaciones finales
 
-## Despliegue
+## 🎮 Categorías de trivia
 
-Este frontend puede desplegarse en plataformas como:
+| Categoría | Descripción | Ícono |
+|-----------|-------------|-------|
+| Cultura | Arte, literatura y música | 🎭 |
+| Videojuegos | Conocimientos sobre juegos | 🎮 |
+| Historia | Eventos y personajes históricos | 📜 |
+| Deporte | Todo sobre deportes | ⚽ |
+| Geografía | Países, ciudades y accidentes geográficos | 🌍 |
+| Trivia Mixta | Combinación de todas las categorías | 🎲 |
 
-- **Vercel**: Compatible con Vite, despliegue automático
-- **GitHub Pages**: Requiere configuración adicional
+## ⚡ Funcionalidades especiales
 
-## Solución de problemas
+### Trivia Mixta
 
-Si encuentras problemas durante la instalación o ejecución, puedes utilizar el script de verificación:
+La opción "Trivia Mixta" presenta una pregunta de cada categoría:
+- Cultura
+- Videojuegos
+- Historia
+- Deporte
+- Geografía
 
-```bash
-node check-deps.js
-```
+Además, incluye preguntas de tipo verdadero/falso para una experiencia más diversa.
 
-Este script verificará si todas las dependencias y archivos esenciales están correctamente configurados.
+### Preguntas tipo Verdadero/Falso
+
+Además de las preguntas de opción múltiple, la aplicación incluye preguntas de tipo verdadero/falso que se presentan con un diseño especial adaptado a este formato.
+
+### Modo sin conexión
+
+Si no hay conexión al backend:
+- La aplicación muestra un aviso al usuario
+- Genera preguntas localmente para cada categoría
+- Permite jugar sin interrupciones
+
+### Feedback visual
+
+- Animaciones al seleccionar respuestas
+- Efectos de confeti al completar una categoría
+- Códigos de colores para respuestas correctas e incorrectas
+- Barra de progreso para ver avance en la categoría
+
+## 📡 Comunicación con el backend
+
+La aplicación se conecta a un backend Node.js + Express que:
+- Genera preguntas dinámicamente usando Gemini AI
+- Almacena preguntas para cada tema
+- Proporciona API RESTful para obtener trivias
+
+## 🛠️ Tecnologías utilizadas
+
+- **React**: Biblioteca para construir la interfaz de usuario
+- **Vite**: Herramienta de desarrollo rápida
+- **Bootstrap / React-Bootstrap**: Framework CSS para el diseño
+- **Axios**: Cliente HTTP para comunicación con el backend
+- **Canvas Confetti**: Efectos visuales de celebración
+
+## 👤 Desarrollador
+
+Miguel Gómez - 2025
